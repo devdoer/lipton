@@ -5,8 +5,8 @@ import logging
 import time
 date_time_name=time.strftime("%Y%m%d %H:%M:%S",time.localtime())
 logging.basicConfig(level=logging.INFO,format="[%(levelname)s]%(message)s")
-logging.info('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
-logging.info("new start logging %s",date_time_name)
+#logging.info('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
+#logging.info("new start logging %s",date_time_name)
 
 import lipton.cmds as cmds
 
@@ -51,6 +51,8 @@ if __name__ == '__main__':
         #change python to executable path
         #print arg_str
         cmd_str = '%s -m %s --inner %s'%(sys.executable, cmd, arg_str )
+        logging.info('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
+        logging.info("new start logging %s",date_time_name)
         logging.info('run hadoop script %s', cmd_str )
         os.system( cmd_str )
     elif cmd == 'startproject':
@@ -59,4 +61,4 @@ if __name__ == '__main__':
         ns = parser.parse_args( sys.argv[2:] )
         name = ns.name
         open(name+'.py','w').write( tpl )
-        logging.info('done!') 
+        logging.info('done, see %s!', name+'.py') 

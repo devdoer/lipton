@@ -14,7 +14,6 @@ logging.basicConfig(level=logging.INFO,format="[%(levelname)s]%(message)s")
 
 import lipton.autotasknum as autotasknum
 import lipton.streaming as streaming 
-import lipton.keeper as keeper
 import lipton.opts as mropts
 import lipton.monitor as monitor
 import lipton.env as env
@@ -36,7 +35,7 @@ def load_conf_into_args(job_name, conf_file, cfg_dir ):
     return args
 
     
-def run( script ):
+def run( script, cfg ):
 
     if not os.path.exists('log'):
         os.mkdir('log')
@@ -90,11 +89,14 @@ def run( script ):
     job_name = mod_name
 
 
-    if keeper.get('mapper') != None and keeper.get('reducer') == None:
+    if cfg.get('mapper') != None and cfg.get('reducer') == None:
         logging.info('mapper only job')
         reduce_script = 'NONE'
     else:
         reduce_script = script_name
+
+    if cfg.get('combiner') != None:
+        logging.info('with combiner')
 
     #generate output/input abs dir
     def mk_abs_dir( dir ):
@@ -158,13 +160,13 @@ def run( script ):
 
     #in-module config
     valid_args = ('input', 'output', 'jobconf', 'inputformat', 'outputformat', 'cacheArchive','file', 'cacheFile')
-    hadoop_args = keeper.get('hadoop_args')
+    hadoop_args = cfg.get('hadoop_args')
     if hadoop_args:
         opts.update( hadoop_args, valid = valid_args )
 
     #check use_record
-    use_record = keeper.get('use_record')
-    schema_file = keeper.get('schema_file')
+    use_record = cfg.get('use_record')
+    schema_file = cfg.get('schema_file')
     if use_record and schema_file:
         logging.info('use schema file: %s'%schema_file)
         opts.update([('cacheFile', schema_file+'#'+schema.LIPTON_SCHEMA_FILE)], valid = valid_args)

@@ -7,7 +7,6 @@ import operator
 import inspect
 #lipton moduels
 import utils
-import keeper 
 import sched
 import schema
 import io
@@ -21,7 +20,11 @@ class mapper_meta(type):
     def __init__(cls, name, bases, dct):  
         super(mapper_meta, cls).__init__(name, bases, dct) 
 
-class reducer_meta(type):
+class combiner_meta(type):
+    def __init__(cls, name, bases, dct):  
+        super(combiner_meta, cls).__init__(name, bases, dct) 
+
+class reducer_meta(combiner_meta):
     def __init__(cls, name, bases, dct):  
         super(reducer_meta, cls).__init__(name, bases, dct) 
 
@@ -37,18 +40,30 @@ class mrjob_cfg_meta(type):
         if reducer and type(reducer) is types.FunctionType:
             dct['reducer'] = staticmethod(reducer)
 
+        combiner = dct.get('combiner')
+        if combiner and type(combiner) is types.FunctionType:
+            dct['combiner'] = staticmethod(combiner)
+
         cfg =  type.__new__(cls,name, bases, dct)
-        keeper.install_cfg( cfg )
+        #keeper.install_cfg( cfg )
         return cfg
 
 
 class base_cfg_t(object):
     __metaclass__ = mrjob_cfg_meta
 
+    @classmethod
+    def get(cls, k ):
+        return getattr(cls, k, None)
+
 class base_mapper_t(object):
     __metaclass__ = mapper_meta
 
-class base_reducer_t(object):
+class base_combiner_t(object):
+    __metaclass__ = combiner_meta
+    COMBINED_NUM = 10000
+
+class base_reducer_t( base_combiner_t ):
     __metaclass__ = reducer_meta
 
 class secondary_sort_mapper_t(base_mapper_t):
@@ -113,7 +128,7 @@ def run( *arg, **kwargs ):
         frame =  inspect.currentframe()
         frames =  inspect.getouterframes(frame)
         caller_script = frames[1][1] 
-        return sched.run( caller_script )
+        return sched.run( caller_script, arg[0] )
         
     #on hadoop cluster
     arg_recordinput = False
@@ -124,13 +139,10 @@ def run( *arg, **kwargs ):
         assert( issubclass(cfg, base_cfg_t ) )
         mapper = getattr(cfg, 'mapper')
         reducer = getattr(cfg, 'reducer', None)
+        combiner = getattr(cfg, 'combiner', None)
         arg_recordinput = getattr(cfg, 'recordinput', False)
         arg_recordoutput = getattr(cfg, 'recordoutput', False)
 
-    elif len(arg) == 2:
-        mapper = arg[0]
-        reducer = arg[1]
-        #args = {}
     else :
         print >> sys.stderr , "invalid mrjob.run(***) arguments"
         sys.exit(1)
@@ -138,6 +150,7 @@ def run( *arg, **kwargs ):
         
 
     if os.environ['mapred_task_is_map'] == 'true':
+        #bind mapper object
         if  isinstance(mapper, mapper_meta) and  issubclass(mapper, base_mapper_t):
             print >> sys.stderr, "mapper class aready"
             mapper_cls = mapper
@@ -150,9 +163,20 @@ def run( *arg, **kwargs ):
         else:
             print >>sys.stderr, "invalid mapper type: %s, use function or class base_mapper_t"%str(mapper)
             sys.exit(1)
-            
-        #bind mapper object
         mapper = mapper_obj
+
+        if combiner:
+        #bind combiner object
+            if  isinstance(combiner, combiner_meta) and  issubclass(combiner, base_combiner_t):
+                print >> sys.stderr, "combiner class aready"
+                combiner_cls = combiner
+                combiner_obj = combiner_cls()
+            elif callable( combiner):
+                print >> sys.stderr, "dynamic create combiner"
+                combiner_cls =  type('combiner', (base_combiner_t,), {})
+                combiner_obj = combiner_cls()
+                combiner_obj.run =  combiner
+
 
         path = utils.get_input_file()
         SCHEMA = None
@@ -168,8 +192,9 @@ def run( *arg, **kwargs ):
         lines = load_map_lines( path,  sys.stdin, arg_recordinput, SCHEMA )
         results = itermap( lines, mapper.run )
         out_SCHEMA = None
-        for result in results:
-            if reducer != None:
+        if reducer != None:
+            combined_output = []
+            for result in results:
                 if  not (type(result) != str and operator.isSequenceType(result) ):
                     #not list sequence  type
                     inc_counter('lipton', 'Bad Map Output Type', 1)
@@ -177,15 +202,28 @@ def run( *arg, **kwargs ):
                 if len( result ) != 2 :
                     inc_counter('lipton', 'Bad Map Output Format', 1)
                     continue
-                k = result[0]
-                v = result[1]
-                print code_dumper.dump(k, v)
-            else:
-                #reducer is None ,mapper only
-                if arg_recordoutput:
-                    print record_dumper.dump( result )
-                else:
-                    print text_dumper.dump( result )
+                if combiner:
+                    combined_output.append( result )
+                    if len(combined_output) >= combiner_obj.COMBINED_NUM:
+                       combined_output.sort(lambda r1, r2: cmp(r1[0], r2[0]))
+                       data = itertools.groupby( combined_output, operator.itemgetter(0) )
+                       for key , values in data:
+                            values = (v[1] for v in values )
+                            results = combiner_obj.run( key, values )
+                            for result in results:
+                                print code_dumper.dump( result[0], result[1] )
+                       combined_output = []             
+                        
+                else:            
+                    print code_dumper.dump( result[0], result[1] )
+
+            for result in combined_output:
+                    print code_dumper.dump( result[0], result[1] )
+                
+        else:
+            #reducer is None ,mapper only
+            for result in results:
+                print text_dumper.dump( result )
     elif reducer :
 
         if  isinstance(reducer, reducer_meta) and  issubclass(reducer, base_reducer_t):
@@ -213,7 +251,4 @@ def run( *arg, **kwargs ):
             values = (v[1] for v in values )
             results = reducer.run( key, values )
             for result in results:
-                if arg_recordoutput:
-                    print record_dumper.dump( result )
-                else:
-                    print text_dumper.dump( result )
+                print text_dumper.dump( result )
