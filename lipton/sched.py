@@ -102,12 +102,13 @@ def run( script ):
             dir = os. path.join(OUTPUT_PARENT_DIR, dir )
         return dir
 
-    pid = os.getpid()
+    #pid = os.getpid()
+    default_outputdir_name = mod_name + '-' + time.strftime("%Y%m%d%H%M%S", time.localtime())  
     if not output_dir:
         if not OUTPUT_PARENT_DIR:
             logging.error('no output dir specified')
             sys.exit(1)
-        output_dir = mk_abs_dir( str(pid ) )
+        output_dir = mk_abs_dir( default_outputdir_name )
     else:
         output_dir = mk_abs_dir( output_dir )
 
@@ -221,7 +222,7 @@ def run( script ):
                     except:
                         logging.error('lipton fetch log failed')
                     else:
-                        filename = 'log/'+job_name+str(int(time.time() ))
+                        filename = 'log/'+ default_outputdir_name
                         f  = open(filename,'w')
                         f.write(log)
                         f.close()
