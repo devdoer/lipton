@@ -7,10 +7,10 @@ import time
 import logging
 import re
 import time
-date_time_name=time.strftime("%Y%m%d %H:%M:%S",time.localtime())
+#date_time_name=time.strftime("%Y%m%d %H:%M:%S",time.localtime())
 logging.basicConfig(level=logging.INFO,format="[%(levelname)s]%(message)s")
-logging.info('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
-logging.info("new start logging %s",date_time_name)
+#logging.info('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
+#logging.info("new start logging %s",date_time_name)
 
 import lipton.autotasknum as autotasknum
 import lipton.streaming as streaming 
@@ -42,13 +42,13 @@ def run( script ):
         os.mkdir('log')
 
     args = sys.argv[1:]
-    args.append(script)
-    parser = cmds.parser(  )
+    #args.append(script)
+    parser = cmds.parser_of_run_cmd(  )
     parser.add_argument('--inner', action = 'store_true')
     ns = parser.parse_args( args )
     if ns.inner != True:
-        logging.error('lipton  should be called in "python -mlipton cmd" way')
-        cmds.parser().print_help()
+        logging.error('lipton  should be called in "python -mlipton script.py" way')
+        parser.print_help()
         sys.exit(1)
     output_dir = ns.output_dir
     input_dirs = ns.input_dirs

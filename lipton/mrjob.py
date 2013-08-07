@@ -51,6 +51,9 @@ class base_mapper_t(object):
 class base_reducer_t(object):
     __metaclass__ = reducer_meta
 
+class secondary_sort_mapper_t(base_mapper_t):
+    pass
+
 def inc_counter(group, counter, amount):
     print >> sys.stderr, 'reporter:counter:%s,%s,%s' % (group, counter, amount)
 
@@ -106,7 +109,7 @@ def itermap( lines , mapper):
 def run( *arg, **kwargs ):
     #local
     if len( sys.argv ) > 1 and sys.argv[1][0] == '-':
-        #local schedule prog
+        #local schedule prog, gen hadoop job submit cmd
         frame =  inspect.currentframe()
         frames =  inspect.getouterframes(frame)
         caller_script = frames[1][1] 

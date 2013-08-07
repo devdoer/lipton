@@ -35,7 +35,7 @@ class py_streaming_t:
         #new_args.append( ('cacheArchive', '/app/ecom/fcr/baoyj/pkgs/backend.tgz'))
         arg_str = utils.format_hadoop_args(new_args)
 
-        logging.info("run python streaming with args %s", arg_str)
+        logging.info("submit python streaming with args %s", arg_str)
         
                  
         if not pipe:

@@ -1,7 +1,17 @@
 import argparse
-def parser(  ):
-    parser = argparse.ArgumentParser(prog = 'python -mlipton')
-    parser.add_argument('cmd', help='python script without arguments, eg. "wordcount.py" or "wordcount", but "wordcount.py arg1 arg2" is invalid')
+
+class valid_main_cmds(list):
+    def __contains__(self, cmd ):
+        if cmd.endswith('.py') :
+            return True
+        else:
+            return super(valid_main_cmds, self).__contains__(cmd)
+
+
+
+def parser_of_run_cmd(  ):
+    parser = argparse.ArgumentParser(prog = 'python -mlipton script.py')
+    #parser.add_argument('script', help='python script without arguments, eg. "wordcount.py" or "wordcount", but "wordcount.py arg1 arg2" is invalid', )
     parser.add_argument('-i', '--input_dirs', action='append', help='hdfs input dir', required=True)
     parser.add_argument('-o', '--output_dir', help='hdfs output dir. if  not specified, output is "OUTPUT_PARENT_DIR/{pid}"')
     parser.add_argument('-c', '--conf_file', help='hadoop streaming argment config file')
@@ -11,4 +21,14 @@ def parser(  ):
    
 
     #ns = parser.parse_args( args )
+    return parser
+
+def parser_of_main_cmd(  ):
+    parser = argparse.ArgumentParser(prog = 'python -mlipton')
+    parser.add_argument('cmd', help='python script without arguments, eg. "wordcount.py" or "wordcount", but "wordcount.py arg1 arg2" is invalid OR other cmd',  choices = valid_main_cmds(['startproject', '*.py']) )
+    return parser
+
+def parser_of_startproject_cmd(  ):
+    parser = argparse.ArgumentParser(prog = 'python -mlipton startproject')
+    parser.add_argument('name', help='python script name you want to create' )
     return parser

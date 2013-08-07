@@ -3,6 +3,7 @@ import schema
 import exceptions
 import operator
 import re
+import utils
 
 class IOException(exceptions.LiptonException):
     pass
@@ -32,6 +33,7 @@ class record_dumper_t(object):
         
 NON_SEQ_TYPES = schema.PYTHON_PRIMITIVE_TYPES + [schema.record_t, ]
 
+
 class text_dumper_t(object):
 
     def dump(self, output ):
@@ -39,6 +41,7 @@ class text_dumper_t(object):
             return str(output)
 
         elif  operator.isSequenceType(output) :
+            output = list( utils.flatten( output ) )
             return '\t'.join(map( str , output ))
         else:
             err_msg =  "text dumper output need str or sequence type"
