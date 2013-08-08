@@ -10,7 +10,6 @@ import utils
 import logging
 date_time_name=time.strftime("%Y%m%d %H:%M:%S",time.localtime())
 #logging.basicConfig(level=logging.DEBUG,format="[%(levelname)s]%(message)s")
-logging.basicConfig(level=logging.INFO,format="[%(levelname)s]%(message)s")
 
 import lipton.autotasknum as autotasknum
 import lipton.streaming as streaming 
@@ -21,6 +20,8 @@ import lipton.cmds as cmds
 import lipton.schema as schema
 import lipton.exceptions as exceptions
 import lipton.hdfs as hdfs
+
+logging.basicConfig(level=logging.INFO,format="[%(levelname)s]%(message)s")
 
 def load_conf_into_args(job_name, conf_file, cfg_dir ):
     args = []
@@ -141,7 +142,12 @@ def submit_lipton_mrjob( script, cfg ):
     input_dir = ','.join(input_dirs)
 
     #gen reduce tasks number
-    num_reduce_tasks = autotasknum.autotasknum(input_dir, ratio, hadoop = os.path.join(HADOOP_HOME, 'bin/hadoop'))
+    if ratio.find('.') == -1:
+        logging.info('user specified reduce tasks')
+        num_reduce_tasks = int(ratio)
+    else:   
+        logging.info('auto compute task number ')
+        num_reduce_tasks = autotasknum.autotasknum(input_dir, float(ratio), hadoop = os.path.join(HADOOP_HOME, 'bin/hadoop'))
     if num_reduce_tasks == 0 :
         num_reduce_tasks  = 1
     logging.info( "using reduce tasks %d", num_reduce_tasks )
