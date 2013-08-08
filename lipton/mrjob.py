@@ -177,6 +177,8 @@ def run( *args, **kwargs ):
                 combiner_cls =  type('combiner', (base_combiner_t,), {})
                 combiner_obj = combiner_cls()
                 combiner_obj.run =  combiner
+                if hasattr(combiner, 'COMBINED_NUM'):
+                    combiner_obj.COMBINED_NUM = getattr(combiner, 'COMBINED_NUM')
 
 
         path = utils.get_input_file()

@@ -118,7 +118,7 @@ def submit_lipton_mrjob( script, cfg ):
         reduce_script = script_name
 
     if cfg.get('combiner') != None:
-        logging.info('with combiner')
+        logging.info('with combiner, combined number %d', cfg.get('combiner').COMBINED_NUM )
 
     #generate output/input abs dir
     def mk_abs_dir( dir ):
