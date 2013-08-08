@@ -4,10 +4,16 @@ import logging
 import subprocess as sp
 import select
 import signal
+import time
 def autotasknum( inputs, ratio , default_tasks = 1024, timeout = 180, hadoop = 'hadoop'):
     input_dirs = re.split(',\s*/', inputs)
-    total_tasks = 0
+    total_input_size = 0
+    tstart = time.time()
+    cost_tm = 0
     for input_dir in input_dirs:
+        cost_tm = time.time() - tstart
+        if cost_tm > timeout: 
+            break
         if not input_dir.startswith('/'):
             input_dir = '/'+input_dir
         logging.info('check size for %s', input_dir)
@@ -26,6 +32,7 @@ def autotasknum( inputs, ratio , default_tasks = 1024, timeout = 180, hadoop = '
             else:
                 logging.warn('get input fs size timeout')
                 os.kill(pipe.pid, signal.SIGKILL)
+                #break
                 return default_tasks
         input_size = 0
         input_size_lines = input_size_str.split('\n')
@@ -36,9 +43,11 @@ def autotasknum( inputs, ratio , default_tasks = 1024, timeout = 180, hadoop = '
                 input_size += int(line)
                 #input_size += int(3)
         input_size = float(input_size)
-        output_size = input_size * ratio
-        tasks = int( output_size / 1024 / 1024 / 1024 / 1 )
-        total_tasks += tasks
+        total_input_size += input_size
+
+    total_output_size = total_input_size * ratio
+    total_tasks = int( total_output_size / 1024 / 1024 / 1024 / 1 )
+    logging.info('total input size is %d, total tasks is %d, ratio is %f', total_output_size, total_tasks, ratio)
     return  total_tasks
 
 if __name__ == '__main__':

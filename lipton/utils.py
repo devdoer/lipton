@@ -61,3 +61,16 @@ def flatten(l):
                 yield sub  
         else:  
             yield el
+
+def encode_shell_args( arg_str  ):
+    args = arg_str.split()
+    left_args = []
+    for arg in args:
+        if arg[0] == '-':
+            pass
+        else:
+            arg = '"'+arg+'"' # don't interpret wildcard
+        left_args.append( arg )
+    return ' '.join(left_args)
+
+

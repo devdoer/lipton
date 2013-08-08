@@ -121,14 +121,15 @@ def itermap( lines , mapper):
         return mapper_iter_func( lines, mapper)
         
 
-def run( *arg, **kwargs ):
+def run( *args, **kwargs ):
     #local
     if len( sys.argv ) > 1 and sys.argv[1][0] == '-':
         #local schedule prog, gen hadoop job submit cmd
         frame =  inspect.currentframe()
         frames =  inspect.getouterframes(frame)
         caller_script = frames[1][1] 
-        return sched.run( caller_script, arg[0] )
+        cfg = args[0]
+        return sched.submit_lipton_mrjob( caller_script, cfg ) 
         
     #on hadoop cluster
     arg_recordinput = False

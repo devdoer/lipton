@@ -4,13 +4,13 @@ import sys
 import getopt
 import os
 import time
-import logging
 import re
 import time
-#date_time_name=time.strftime("%Y%m%d %H:%M:%S",time.localtime())
+import utils
+import logging
+date_time_name=time.strftime("%Y%m%d %H:%M:%S",time.localtime())
+#logging.basicConfig(level=logging.DEBUG,format="[%(levelname)s]%(message)s")
 logging.basicConfig(level=logging.INFO,format="[%(levelname)s]%(message)s")
-#logging.info('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
-#logging.info("new start logging %s",date_time_name)
 
 import lipton.autotasknum as autotasknum
 import lipton.streaming as streaming 
@@ -35,7 +35,29 @@ def load_conf_into_args(job_name, conf_file, cfg_dir ):
     return args
 
     
-def run( script, cfg ):
+def start_job( cmd , args ):
+    """args canbe 
+        '-i sss -o sss'  or 
+        [('-i','sss'),('-o','sss')] or 
+        ['-i', 'sss', '-o', 'sss']
+    """
+    logging.info('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
+    logging.info("new start logging %s",date_time_name)
+    if cmd.endswith('.py'): cmd = cmd[:-3]
+    if hasattr( args, '__iter__'):
+        logging.debug('args is sequence')
+        args =  [ v[0]+' '+v[1] if isinstance(v, tuple) else v for v in args ]
+        arg_str = ' '.join( args )
+    elif isinstance(args, basestring):
+        logging.debug('args is string')
+        arg_str = args 
+
+    arg_str = utils.encode_shell_args( arg_str )
+    cmd_str = '%s -m %s --inner %s'%(sys.executable, cmd, arg_str )
+    logging.info('start job %s', cmd_str )
+    return os.system( cmd_str )
+
+def submit_lipton_mrjob( script, cfg ):
 
     if not os.path.exists('log'):
         os.mkdir('log')

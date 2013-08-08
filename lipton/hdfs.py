@@ -6,7 +6,7 @@ import utils
         
 class HDFS:
     force_rm_ins = utils.force_rm_t()
-    def __init__(self, hadoop='hadoop'):
+    def __init__(self, hadoop = 'hadoop'):
             self._hadoop = hadoop
 
     def exists(self ,p ):
