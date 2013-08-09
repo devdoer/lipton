@@ -122,8 +122,8 @@ def itermap( lines , mapper):
         
 
 def run( *args, **kwargs ):
-    #local
-    if len( sys.argv ) > 1 and sys.argv[1][0] == '-':
+    #if len( sys.argv ) > 1 and sys.argv[1][0] == '-':
+    if '--inner' in sys.argv:
         #local schedule prog, gen hadoop job submit cmd
         frame =  inspect.currentframe()
         frames =  inspect.getouterframes(frame)

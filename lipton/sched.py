@@ -119,7 +119,7 @@ def submit_lipton_mrjob( script, cfg ):
         reduce_script = script_name
 
     if cfg.get('combiner') != None:
-        logging.info('with combiner, combined number %d', cfg.get('combiner').COMBINED_NUM )
+        logging.info( 'run with combiner' )
 
     #generate output/input abs dir
     def mk_abs_dir( dir ):
@@ -128,7 +128,7 @@ def submit_lipton_mrjob( script, cfg ):
         return dir
 
     #pid = os.getpid()
-    default_outputdir_name = mod_name + '-' + time.strftime("%Y%m%d%H%M%S", time.localtime())  
+    default_outputdir_name = mod_name + '-' + time.strftime("%Y%m%d.%H%M.%S", time.localtime())  
     if not output_dir:
         if not OUTPUT_PARENT_DIR:
             logging.error('no output dir specified')
