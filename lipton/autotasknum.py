@@ -69,5 +69,5 @@ def autotasknum( inputs, ratio , default_tasks = 1024, timeout = 180, hadoop = '
     return  total_tasks
 
 if __name__ == '__main__':
-    print autotasknum("/app/ecom/fcr/baoyj/tmp/24094",0.5)
-    print autotasknum("/app/ecom/fcr/baoyj/tmp/24094,/app/ecom/fcr/baoyj/tmp/roi-input/part*A",0.5)
+    print autotasknum("/app/tmp/24094",0.5)
+    print autotasknum("/app/tmp/24094,/app/tmp/roi-input/part*A",0.5)

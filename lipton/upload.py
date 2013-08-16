@@ -1,5 +1,5 @@
 HADOOP_HOME="/home/work/hadoop-client/hadoop"
-PKG_HOME='/app/ecom/fcr/baoyj/pkgs'
+PKG_HOME='/hadoop/dir/py27.tgz"
 
 
 import sys
