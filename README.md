@@ -3,4 +3,4 @@ lipton
 
 hadoop streaming tool for python
 
-see examples.
+see examples in examples dir.
