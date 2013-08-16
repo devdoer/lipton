@@ -1,6 +1,6 @@
 lipton
 ======
 
-hadoop streaming tool for python
+Hadoop streaming library and tool sets for python.
 
-see examples in examples dir.
+See examples in examples dir.
