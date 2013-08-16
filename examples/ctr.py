@@ -1,3 +1,7 @@
+"""
+How to run?
+    python -mlipton ctr.py -i "/your/hadoop/input/directory" -o "/your/hadoop/output/directory"
+"""
 import lipton.mrjob as mrjob
 import random
 
