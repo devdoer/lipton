@@ -235,7 +235,7 @@ def submit_lipton_mrjob( script, cfg ):
                 logging.info("lipton capture job id: %s", jobid)
 
             
-            #Tracking URL: http://hy-ecomoff-job.dmop.baidu.com:8030/
+            #Tracking URL: http://www.sdsdsdsds.com:8030/
             mo = re.search("Tracking URL: (http://[^/]+)", line)
             if mo:
                 tracking_host = mo.group(1)
