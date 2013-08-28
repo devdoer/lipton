@@ -27,6 +27,3 @@ How to debug?
 If your script failed, the python exception will be logged. You can see the error message such as "see log/...." at your terminal. 
 
 
-Contact the author
------------------
-devdoer(at)gmail.com
