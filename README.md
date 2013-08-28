@@ -8,7 +8,9 @@ examples
 See examples in "examples" directory.
 
 word-counter.py   word counter demo
+
 mapper-only-example.py  mapper only hadoop job
+
 combiner-example.py  use combiner to increase speed
 
 How to run?
