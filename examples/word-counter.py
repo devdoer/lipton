@@ -10,6 +10,9 @@ b   5
 
 We want to count how many  times 'a' ,'b' ,... occured. 
 
+How to run?
+    python -mlipton word-counter.py -i "/your/hadoop/input/directory" -o "/your/hadoop/output/directory"
+
 """
 import lipton.mrjob as mrjob
 
