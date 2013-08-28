@@ -134,8 +134,8 @@ def run( *args, **kwargs ):
     #on hadoop cluster
     arg_recordinput = False
     arg_recordoutput = False
-    if len(arg) == 1:
-        cfg = arg[0]
+    if len(args) == 1:
+        cfg = args[0]
         assert( isinstance(cfg, mrjob_cfg_meta ) )
         assert( issubclass(cfg, base_cfg_t ) )
         mapper = getattr(cfg, 'mapper')

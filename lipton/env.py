@@ -56,3 +56,4 @@ def parse_lipton_env( cfg_dir ):
     return args
     
  
+env = init() 
