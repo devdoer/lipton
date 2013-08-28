@@ -66,8 +66,6 @@ class base_combiner_t(object):
 class base_reducer_t( base_combiner_t ):
     __metaclass__ = reducer_meta
 
-class secondary_sort_mapper_t(base_mapper_t):
-    pass
 
 def inc_counter(group, counter, amount):
     print >> sys.stderr, 'reporter:counter:%s,%s,%s' % (group, counter, amount)
@@ -132,8 +130,6 @@ def run( *args, **kwargs ):
         return sched.submit_lipton_mrjob( caller_script, cfg ) 
         
     #on hadoop cluster
-    arg_recordinput = False
-    arg_recordoutput = False
     if len(args) == 1:
         cfg = args[0]
         assert( isinstance(cfg, mrjob_cfg_meta ) )
@@ -141,8 +137,7 @@ def run( *args, **kwargs ):
         mapper = getattr(cfg, 'mapper')
         reducer = getattr(cfg, 'reducer', None)
         combiner = getattr(cfg, 'combiner', None)
-        arg_recordinput = getattr(cfg, 'recordinput', False)
-        arg_recordoutput = getattr(cfg, 'recordoutput', False)
+        secondary_sort = cfg.get('secondary_sort')
 
     else :
         print >> sys.stderr , "invalid mrjob.run(***) arguments"
@@ -182,29 +177,28 @@ def run( *args, **kwargs ):
 
 
         path = utils.get_input_file()
-        SCHEMA = None
-        if arg_recordinput:
-            #check schema on cluster
-            try:
-                f = io.schema_file_reader_t(schema.LIPTON_SCHEMA_FILE)
-                schema_str = f.find(path)
-            except:
-                print >>sys.stderr, "read schema file with exception"
-            else:
-                SCHEMA = schema.parse( schema_str )
-        lines = load_map_lines( path,  sys.stdin, arg_recordinput, SCHEMA )
+        lines = load_map_lines( path,  sys.stdin )
         results = itermap( lines, mapper.run )
-        out_SCHEMA = None
+        invalid_counter = 0
         if reducer != None:
             combined_output = []
             for result in results:
+                if invalid_counter > 1000:
+                    raise Exception("The number of invalid map record is larger than 1000, check your code")
                 if  not (type(result) != str and operator.isSequenceType(result) ):
                     #not list sequence  type
                     inc_counter('lipton', 'Bad Map Output Type', 1)
+                    invalid_counter += 1
                     continue
-                if len( result ) != 2 :
+                if  len( result ) != 2 : 
                     inc_counter('lipton', 'Bad Map Output Format', 1)
+                    invalid_counter += 1
                     continue
+                if secondary_sort:
+                    if not operator.isSequenceType(result[1]):
+                        inc_counter('lipton', 'Bad Map Output Format', 1)
+                        invalid_counter += 1
+                        continue
                 if combiner:
                     combined_output.append( result )
                     if len(combined_output) >= combiner_obj.COMBINED_NUM:
@@ -216,6 +210,8 @@ def run( *args, **kwargs ):
                             for result in results:
                                 print code_dumper.dump( result[0], result[1] )
                        combined_output = []             
+                elif secondary_sort:
+                    print code_dumper.dump(result[0], result[1][0], result[1])
                         
                 else:            
                     print code_dumper.dump( result[0], result[1] )

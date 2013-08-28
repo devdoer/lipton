@@ -121,6 +121,7 @@ def submit_lipton_mrjob( script, cfg ):
     if cfg.get('combiner') != None:
         logging.info( 'run with combiner' )
 
+
     #generate output/input abs dir
     def mk_abs_dir( dir ):
         if not dir.startswith('/'):
@@ -199,6 +200,11 @@ def submit_lipton_mrjob( script, cfg ):
         logging.info('use schema file: %s'%schema_file)
         opts.update([('cacheFile', schema_file+'#'+schema.LIPTON_SCHEMA_FILE)], valid = valid_args)
      
+    #check secondary_sort option
+    if cfg.get('secondary_sort'):
+        logging.info('secondary sort is configured')
+        secondary_sort_conf = [('jobconf','mapred.output.key.comparator.class=org.apache.hadoop.mapred.lib.KeyFieldBasedComparator'),('partitioner','org.apache.hadoop.mapred.lib.KeyFieldBasedPartitioner'),('jobconf','stream.num.map.output.key.fields=2'),('jobconf','mapred.text.key.partitioner.options=-k1,1')]
+        opts.update( secondary_sort_conf)
 
     #############################################
     #per-file config

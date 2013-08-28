@@ -49,27 +49,20 @@ class text_dumper_t(object):
 
 
 class code_dumper_t(object):
-    def dump(self, k, v):
-        if  isinstance(v, schema.record_t):
-                schema_obj = v.schema.encode_to_obj()
-                rec_obj = v.encode_to_obj()
-                d = {
-                        '_L:schema':schema_obj,
-                        '_L:record': rec_obj,
-                     }   
-                return repr(k)+'\t'+repr(d)
-        else:
+    def dump(self, k, v, v2=None):
             if type(v) not in [list, int, float, tuple, str, unicode, basestring ]:
                 err_msg =  "code dumper output need basic type or record"
                 raise IOException( err_msg )
+            if v2:
+                return '\t'.join( [repr(k), repr(v), repr(v2)] )
             return repr(k)+'\t'+repr(v)
 
 
 class code_loader_t(object):
     def load(self, line ):
-        k,v = line.split('\t', 1)
-        k = eval(k)
-        v = eval(v)
+        flds = line.split('\t')
+        k = eval( flds[0] )
+        v = eval( flds[-1] )
         if isinstance(v, dict):
             schema_obj = v.get('_L:schema')
             record_obj = v.get('_L:record')
