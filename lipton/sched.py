@@ -182,13 +182,13 @@ def submit_lipton_mrjob( script, cfg ):
     for input_dir in input_dirs:
         opts.update( [('input', input_dir),] )
 
-    valid_args = ('input', 'output', 'jobconf', 'inputformat', 'outputformat', 'cacheArchive','file',)
+    valid_args = ('input', 'output', 'jobconf', 'inputformat', 'outputformat', 'cacheArchive','file','libjars')
 
     if HADOOP_ARGS:
         opts.update( HADOOP_ARGS, valid = valid_args )
 
     #in-module config
-    valid_args = ('input', 'output', 'jobconf', 'inputformat', 'outputformat', 'cacheArchive','file', 'cacheFile')
+    valid_args = ('input', 'output', 'jobconf', 'inputformat', 'outputformat', 'cacheArchive','file', 'cacheFile', 'libjars')
     hadoop_args = cfg.get('hadoop_args')
     if hadoop_args:
         opts.update( hadoop_args, valid = valid_args )

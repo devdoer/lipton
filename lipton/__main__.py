@@ -33,7 +33,8 @@ if __name__ == '__main__':
     #notice ,bug, may remove conflict string, eg. python -m lipton lipton -i ....
     if cmd.endswith('.py'):
         cmd = cmd[:-3]
-        sched.start_job( cmd, sys.argv[2:] )
+        if 0 != sched.start_job( cmd, sys.argv[2:] ):
+            sys.exit(1)
     elif cmd == 'startproject':
         logging.info('startproject' )
         parser = cmds.parser_of_startproject_cmd()

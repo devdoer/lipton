@@ -32,7 +32,9 @@ class opts_t:
                 if k == 'jobconf':
                     v = jobconf_opt_t(v)
                 try:
-                    self._args[k].add(v)
+                    jobconfs = self._args[k]
+                    jobconfs.discard(v)
+                    jobconfs.add(v)
                 except KeyError:
                     self._args[k] = set([v])
 

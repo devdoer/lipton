@@ -19,18 +19,25 @@ class py_streaming_t:
         
        
     def run(self, args, pipe = False):
-        if not self._remote_python:
+        if self._remote_python == None:
             logging.error('no python path specfied on hdfs')
             return -1
-        args.append( ('cacheArchive', self._remote_python.strip()+'#python') )
+        if self._remote_python != 'default':    
+            args.append( ('cacheArchive', self._remote_python.strip()+'#python') )
 
         new_args=[]
         for k,v in args:
             if (k == 'mapper' or k == 'reducer') and v.split()[0].endswith('.py'):
                 if v[0]=='"':
-                    v = '\"python/bin/python '+ v[1:]
+                    if self._remote_python != 'default':
+                        v = '\"python/bin/python '+ v[1:]
+                    else:    
+                        v = '\"python '+ v[1:]
                 else:
-                    v = '\"python/bin/python '+ v+'\"'
+                    if self._remote_python != 'default':
+                        v = '\"python/bin/python '+ v+'\"'
+                    else:    
+                        v = '\"python '+ v+'\"'
             new_args.append((k,v))    
         arg_str = utils.format_hadoop_args(new_args)
 
