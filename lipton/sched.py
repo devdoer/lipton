@@ -8,6 +8,7 @@ import re
 import time
 import utils
 import logging
+from define import defines
 date_time_name=time.strftime("%Y%m%d %H:%M:%S",time.localtime())
 #logging.basicConfig(level=logging.DEBUG,format="[%(levelname)s]%(message)s")
 
@@ -54,7 +55,7 @@ def start_job( cmd , args ):
         arg_str = args 
 
     arg_str = utils.encode_shell_args( arg_str )
-    cmd_str = '%s -m %s --inner %s'%(sys.executable, cmd, arg_str )
+    cmd_str = '%s -m %s --local %s'%(sys.executable, cmd, arg_str )
     logging.info('start job %s', cmd_str )
     return os.system( cmd_str )
 
@@ -65,10 +66,10 @@ def submit_lipton_mrjob( script, cfg ):
 
     args = sys.argv[1:]
     #args.append(script)
-    parser = cmds.parser_of_run_cmd(  )
-    parser.add_argument('--inner', action = 'store_true')
+    parser = cmds.parser_of_local_run_cmd(  )
+    parser.add_argument('--local', action = 'store_true')
     ns = parser.parse_args( args )
-    if ns.inner != True:
+    if ns.local != True:
         logging.error('lipton  should be called in "python -mlipton script.py" way')
         parser.print_help()
         sys.exit(1)
@@ -161,8 +162,8 @@ def submit_lipton_mrjob( script, cfg ):
 
     #default mrjob config
     args=[
-            ('mapper', script_name),
-            ('reducer', reduce_script),
+            ('mapper', script_name+' '+' '.join(defines.defined_args())),
+            ('reducer', reduce_script+' '+' '.join(defines.defined_args())),
             #('input', input_dir),
             ('output', output_dir),
             ('file', script_path ),

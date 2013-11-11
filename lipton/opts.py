@@ -1,3 +1,6 @@
+"""
+hadoop config opts
+"""
 
 single_opts = ['mapper', 'reducer', 'outputformat' , 'inputformat']
 class jobconf_opt_t:

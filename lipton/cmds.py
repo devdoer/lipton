@@ -9,7 +9,7 @@ class valid_main_cmds(list):
 
 
 
-def parser_of_run_cmd(  ):
+def parser_of_local_run_cmd(  ):
     parser = argparse.ArgumentParser(prog = 'python -mlipton script.py')
     #parser.add_argument('script', help='python script without arguments, eg. "wordcount.py" or "wordcount", but "wordcount.py arg1 arg2" is invalid', )
     parser.add_argument('-i', '--input_dirs', action='append', help='hdfs input dir', required=True)
@@ -19,10 +19,14 @@ def parser_of_run_cmd(  ):
     parser.add_argument('-r', '--ratio', default='0.5',  help='map output/reducer output ratio, default is 0.5')
     parser.add_argument('-f', '--force', action='store_true',  help='force remove hdfs output dir ')
     parser.add_argument('-D', '--define', action='append', help='defined vars')
-   
-
     #ns = parser.parse_args( args )
     return parser
+
+def parser_of_remote_run_cmd():
+    parser = argparse.ArgumentParser(prog = 'python script.py')
+    parser.add_argument('-D', '--define', action='append', help='defined vars')
+    return parser
+
 
 def parser_of_main_cmd(  ):
     parser = argparse.ArgumentParser(prog = 'python -mlipton')
