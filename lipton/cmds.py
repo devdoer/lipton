@@ -18,6 +18,7 @@ def parser_of_run_cmd(  ):
     parser.add_argument('-site', '--site_conf', help='your lipton enviroment config file')
     parser.add_argument('-r', '--ratio', default='0.5',  help='map output/reducer output ratio, default is 0.5')
     parser.add_argument('-f', '--force', action='store_true',  help='force remove hdfs output dir ')
+    parser.add_argument('-D', '--define', action='append', help='defined vars')
    
 
     #ns = parser.parse_args( args )
