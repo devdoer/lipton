@@ -10,10 +10,28 @@ import utils
 import sched
 import schema
 import io
+
 text_dumper = io.text_dumper_t()
 record_dumper  = io.record_dumper_t()
 code_dumper  = io.code_dumper_t()
 code_loader  = io.code_loader_t()
+
+class output_t(object):
+    def __init__(self):
+        self._l = []
+        self._counter = 0
+    def output(self, s):
+        self._l.append(s)
+        self._counter += 1
+        if self._counter >= 1000:
+            print '\n'.join(self._l)
+            self._l = []
+            self._counter = 0
+    def __del__(self):
+        if self._l:
+            print '\n'.join(self._l)
+
+output_obj = output_t()
 
 
 class mapper_meta(type):
@@ -208,21 +226,26 @@ def run( *args, **kwargs ):
                             values = (v[1] for v in values )
                             results = combiner_obj.run( key, values )
                             for result in results:
-                                print code_dumper.dump( result[0], result[1] )
+                                #print code_dumper.dump( result[0], result[1] )
+                                output_obj.output(code_dumper.dump( result[0], result[1] ))
                        combined_output = []             
                 elif secondary_sort:
-                    print code_dumper.dump(result[0], result[1][0], result[1])
+                    #print code_dumper.dump(result[0], result[1][0], result[1])
+                    output_obj.output( code_dumper.dump(result[0], result[1][0], result[1]) )
                         
                 else:            
-                    print code_dumper.dump( result[0], result[1] )
+                    #print code_dumper.dump( result[0], result[1] )
+                    output_obj.output( code_dumper.dump( result[0], result[1] ) )
 
             for result in combined_output:
-                    print code_dumper.dump( result[0], result[1] )
+                    #print code_dumper.dump( result[0], result[1] )
+                    output_obj.output(code_dumper.dump( result[0], result[1] ) )
                 
         else:
             #reducer is None ,mapper only
             for result in results:
-                print text_dumper.dump( result )
+                #print text_dumper.dump( result )
+                output_obj.output( text_dumper.dump( result ) )
     elif reducer :
 
         if  isinstance(reducer, reducer_meta) and  issubclass(reducer, base_reducer_t):
@@ -250,4 +273,5 @@ def run( *args, **kwargs ):
             values = (v[1] for v in values )
             results = reducer.run( key, values )
             for result in results:
-                print text_dumper.dump( result )
+                #print text_dumper.dump( result )
+                output_obj.output( text_dumper.dump( result ) )
