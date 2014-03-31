@@ -55,7 +55,8 @@ def start_job( cmd , args ):
         arg_str = args 
 
     arg_str = utils.encode_shell_args( arg_str )
-    cmd_str = '%s -m %s --local %s'%(sys.executable, cmd, arg_str )
+    #cmd_str = '%s -m %s --local %s'%(sys.executable, cmd, arg_str )
+    cmd_str = '%s %s --local %s'%(sys.executable, cmd+'.py', arg_str )
     logging.info('start job %s', cmd_str )
     return os.system( cmd_str )
 
@@ -111,13 +112,13 @@ def submit_lipton_mrjob( script, cfg ):
         sys.path.insert(0, script_dir )
     mod_name = script_name.rsplit('.',1)[0]
     job_name = mod_name
-
+    mapper_script = script_name+' '+' '.join(defines.defined_args())
 
     if cfg.get('mapper') != None and cfg.get('reducer') == None:
         logging.info('mapper only job')
         reduce_script = 'NONE'
     else:
-        reduce_script = script_name
+        reduce_script = script_name+' '+' '.join(defines.defined_args())
 
     if cfg.get('combiner') != None:
         logging.info( 'run with combiner' )
@@ -162,8 +163,8 @@ def submit_lipton_mrjob( script, cfg ):
 
     #default mrjob config
     args=[
-            ('mapper', script_name+' '+' '.join(defines.defined_args())),
-            ('reducer', reduce_script+' '+' '.join(defines.defined_args())),
+            ('mapper', mapper_script),
+            ('reducer', reduce_script),
             #('input', input_dir),
             ('output', output_dir),
             ('file', script_path ),
