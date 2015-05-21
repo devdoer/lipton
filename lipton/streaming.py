@@ -23,7 +23,7 @@ class py_streaming_t:
             logging.error('no python path specfied on hdfs')
             return -1
         if self._remote_python != 'default':    
-            args.append( ('cacheArchive', self._remote_python.strip()+'#python') )
+            args.append( ('archives', self._remote_python.strip()+'#python') )
 
         new_args=[]
         for k,v in args:
